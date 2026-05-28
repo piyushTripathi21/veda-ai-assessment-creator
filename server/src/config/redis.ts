@@ -12,6 +12,7 @@ export const redisConnection: ConnectionOptions = {
   host: process.env.REDIS_HOST || '127.0.0.1',
   port: parseInt(process.env.REDIS_PORT || '6379', 10),
   maxRetriesPerRequest: null,
+  ...(process.env.REDIS_HOST?.includes('upstash.io') ? { tls: {} } : {}),
 };
 
 let isRedisOnline = false;
@@ -26,6 +27,7 @@ const testRedisConnection = async (): Promise<boolean> => {
       connectTimeout: 2000,
       lazyConnect: true,
       retryStrategy: () => null, // Stop reconnection attempts on test failure
+      ...(redisConnection.host?.includes('upstash.io') ? { tls: {} } : {}),
     });
 
     // Suppress Node event emitter warnings for expected connection failures during checks
