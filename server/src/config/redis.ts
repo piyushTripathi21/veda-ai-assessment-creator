@@ -133,14 +133,9 @@ const processLocalJob = async (assignmentId: string) => {
 
 // Public method to add assignments to queue
 export const addAssignmentJob = async (assignmentId: string): Promise<{ id: string; type: 'bullmq' | 'memory' }> => {
-  if (isRedisOnline && bullQueue) {
-    const job = await bullQueue.add(`generate-${assignmentId}`, { assignmentId });
-    return { id: job.id || '', type: 'bullmq' };
-  } else {
-    // Fallback to local execution loop
-    processLocalJob(assignmentId);
-    return { id: `local-${assignmentId}`, type: 'memory' };
-  }
+  // Always use local in-memory queue fallback for maximum stability and speed on single-instance cloud hosting
+  processLocalJob(assignmentId);
+  return { id: `local-${assignmentId}`, type: 'memory' };
 };
 
 export const getRedisOnlineStatus = () => isRedisOnline;
